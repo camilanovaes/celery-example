@@ -1,0 +1,30 @@
+version: "3"
+services:
+  app:
+    build: .
+    ports:
+      - 5000:5000
+    depends_on:
+      - worker
+  worker:
+    build: .
+    command: celery -A celery_worker worker --loglevel=info
+    depends_on:
+      - rabbitmq
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - rabbitmq:/var/lib/rabbitmq
+  flower:
+    build: .
+    command: celery -A celery_worker flower
+    ports:
+      - 5555:5555
+    depends_on:
+      - worker
+
+volumes:
+  rabbitmq:
